@@ -81,6 +81,7 @@ namespace SuperMarketManager
             {
                 r.Close();
             }
+            Console.WriteLine("----------------------------------------------------------------");
             Console.Write("请输入任意键,返回主菜单:");
             Console.ReadLine();
             Mean();
@@ -90,7 +91,27 @@ namespace SuperMarketManager
         /// </summary>
         private void ShowAllCommodityClassifications()
         {
-            throw new NotImplementedException();
+
+            Console.WriteLine("\n---------------------------------");
+            Console.WriteLine("分类编号\t商品分类名称 ");
+            Console.WriteLine("---------------------------------");
+            string sql = "SELECT GTID,TypeName FROM [dbo].[GoodsType]";
+            SqlDataReader r = DBHelper.ExecuteReader(sql);
+            while (r != null && r.HasRows && r.Read())
+            {
+                string gid = r["GTID"].ToString();
+                string name = r["TypeName"].ToString();
+               
+                Console.WriteLine($"{gid}\t\t{name}");
+            }
+            if (r != null)
+            {
+                r.Close();
+            }
+            Console.WriteLine("---------------------------------");
+            Console.Write("请输入任意键,返回主菜单:");
+            Console.ReadLine();
+            Mean();
         }
         /// <summary>
         /// 新增商品
