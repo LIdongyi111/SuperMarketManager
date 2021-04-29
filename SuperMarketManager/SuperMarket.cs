@@ -118,14 +118,116 @@ namespace SuperMarketManager
         /// </summary>
         private void NewCommodity()
         {
-            throw new NotImplementedException();
+            Console.Write("\n请输入商品名称:");
+            string name = Console.ReadLine();
+            Console.Write("请输入商品售价:");
+            string money = Console.ReadLine();
+            Console.Write("请输入商品入库库存:");
+            string kucun = Console.ReadLine();
+            Console.WriteLine("请选择商品所属分类:");
+            Console.WriteLine("---------------------------------");
+            Console.WriteLine("分类编号\t商品分类名称 ");
+            Console.WriteLine("---------------------------------");
+            string sql = "SELECT GTID,TypeName FROM [dbo].[GoodsType]";
+            SqlDataReader r = DBHelper.ExecuteReader(sql);
+            while (r != null && r.HasRows && r.Read())
+            {
+                string gid = r["GTID"].ToString();
+                string naame = r["TypeName"].ToString();
+
+                Console.WriteLine($"{gid}\t\t{naame}");
+            }
+            if (r != null)
+            {
+                r.Close();
+            }
+            Console.Write("请输入商品分类编号:");
+            int bh = Convert.ToInt32(Console.ReadLine());
+            string u_sql = string.Format("SELECT MAX(GTID) FROM [dbo].[GoodsType]");
+            string us_sql = string.Format("SELECT MIN(GTID) FROM [dbo].[GoodsType]");
+            int res = Convert.ToInt32(DBHelper.ExecuteScalar(u_sql));
+            int ress = Convert.ToInt32(DBHelper.ExecuteScalar(us_sql));
+            if(bh<ress || bh > res)
+            {
+                Console.WriteLine("编号不存在！请重试");
+                NewCommodity();
+                return;
+            }
+            string r_sql = string.Format("SELECT COUNT(0) FROM [dbo].[Goods] WHERE Name='{0}'",name);
+            int ras = Convert.ToInt32(DBHelper.ExecuteScalar(r_sql));
+            if(ras != 0)
+            {
+                Console.WriteLine("商品已存在！请重新输入！");
+                Mean();
+                return;
+            }
+            else
+            {
+                string no_sql = string.Format("INSERT INTO [dbo].[Goods] VALUES ('{0}','{1}','{2}','{3}')", name,bh,kucun, money);
+                bool sv = DBHelper.ExecuteNonQuery(no_sql);
+                if (sv)
+                {
+                    Console.WriteLine("新增商品成功!");
+                }
+                else
+                {
+                    Console.WriteLine("新增商品失败,请稍后再试!");
+                }
+                
+            }
+            Console.Write("请输入任意键,返回主菜单:");
+            Console.ReadLine();
+            Mean();
         }
         /// <summary>
         /// 修改商品售价
         /// </summary>
         private void ModifyTheSellingPriceOfGoods()
         {
-            throw new NotImplementedException();
+            Console.Write("\n请输入需要修改售价的商品编号:");
+            string bh = Console.ReadLine();
+            string sa_sql = string.Format("SELECT COUNT(0) FROM [dbo].[Goods] WHERE GID='{0}';",bh);
+            int res = Convert.ToInt32(DBHelper.ExecuteScalar(sa_sql));
+            if(res == 0)
+            {
+                Console.WriteLine("对不起,您输入的商品编号不存在,请重试！");
+                Mean();
+                return;
+            }
+            Console.Write("请输入商品的最新售价:");
+            string money = Console.ReadLine();
+            string u_sql = string.Format("SELECT Name,Price FROM [dbo].[Goods]	WHERE GID = '{0}'",bh);
+            SqlDataReader r = DBHelper.ExecuteReader(u_sql);
+            if(r!=null && r.HasRows && r.Read())
+            {
+                string name = r["Name"].ToString();
+                string price = r["Price"].ToString();
+                Console.WriteLine("您将要修改”{0}”的商品售价,该商品原售价为:{1}元, 现在的售价为:{2}元",name,price,money);
+            }
+            Random ex = new Random();
+            int num = ex.Next(1000, 9999);
+            Console.Write("请输入验证码”{0}”继续您的操作:",num);
+            string yzm = Console.ReadLine();
+            if(yzm == num.ToString())
+            {
+                string no_sql = string.Format("UPDATE [dbo].[Goods] SET [Price]='{0}' WHERE GID='{1}'", money, bh);
+                bool sv = DBHelper.ExecuteNonQuery(no_sql);
+                if (sv)
+                {
+                    Console.WriteLine("修改商品售价成功!");
+                }
+                else
+                {
+                    Console.WriteLine("修改商品售价失败,请稍后再试!");
+                }
+            }
+            else
+            {
+                Console.WriteLine("验证码输入错误,修改售价操作已被终止!");
+            }
+            Console.Write("请输入任意键,返回主菜单:");
+            Console.ReadLine();
+            Mean();
         }
         /// <summary>
         /// 删除商品信息
